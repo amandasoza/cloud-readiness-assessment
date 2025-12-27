@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cloud Readiness Assessment</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .question {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Cloud Readiness Assessment</h1>
+
+  <form id="assessmentForm">
+
+    <div class="question">
+      <p>1. Cloud Infrastructure</p>
+      <select required>
+        <option value="">Select</option>
+        <option value="0">No cloud usage</option>
+        <option value="1">Small experiments</option>
+        <option value="2">Some workloads in the cloud</option>
+        <option value="3">Cloud-first strategy</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>2. Cloud Strategy & Governance</p>
+      <select required>
+        <option value="">Select</option>
+        <option value="0">No defined strategy</option>
+        <option value="1">Initial discussions</option>
+        <option value="2">Defined strategy, partially applied</option>
+        <option value="3">Well-defined and enforced strategy</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>3. Data Centralization</p>
+      <select required>
+        <option value="">Select</option>
+        <option value="0">Local or manual data</option>
+        <option value="1">Partially centralized</option>
+        <option value="2">Centralized in cloud systems</option>
+        <option value="3">Fully centralized and integrated</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>4. Automation & DevOps</p>
+      <select required>
+        <option value="">Select</option>
+        <option value="0">Fully manual</option>
+        <option value="1">Some automation</option>
+        <option value="2">CI/CD pipelines</option>
+        <option value="3">Fully automated DevOps</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>5. Monitoring & Observability</p>
+      <select required>
+        <option value="">Select</option>
+        <option value="0">No monitoring</option>
+        <option value="1">Basic monitoring</option>
+        <option value="2">Centralized monitoring tools</option>
+        <option value="3">Advanced observability and alerts</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>6. Data & Analytics</p>
+      <select required>
+        <option value="">Select</option>
+        <option value="0">Not data-driven</option>
+        <option value="1">Basic reports</option>
+        <option value="2">Advanced dashboards</option>
+        <option value="3">Predictive analytics / ML</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <p>7. Security & Compliance</p>
+      <select required>
+        <option value="">Select</option>
+        <option value="0">No defined practices</option>
+        <option value="1">Basic security controls</option>
+        <option value="2">Policies and compliance checks</option>
+        <option value="3">Advanced security and automation</option>
+      </select>
+    </div>
+
+    <button type="submit">Submit Assessment</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('assessmentForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const values = Array.from(document.querySelectorAll('select'))
+        .map(select => Number(select.value));
+
+      const response = await fetch('http://localhost:5000/assessment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: values })
+      });
+
+      const data = await response.json();
+
+      resultDiv.innerHTML = `
+        <h3>Result</h3>
+        <p><strong>Score:</strong> ${data.score}</p>
+        <p><strong>Maturity Level:</strong> ${data.level}</p>
+        <p><strong>Recommendations:</strong></p>
+        <ul>
+          ${data.recommendations.map(r => `<li>${r}</li>`).join('')}
+        </ul>
+      `;
+    });
+  </script>
+
+</body>
+</html>
