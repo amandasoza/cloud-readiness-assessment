@@ -9,9 +9,27 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/assessment', (req, res) => {
-  const answers = req.body.answers;
+  const { answers } = req.body;
 
-  const score = answers.reduce((total, value) => total + value, 0);
+  // Input validation
+  if (!answers || !Array.isArray(answers)) {
+    return res.status(400).json({
+      error: 'Answers must be an array of numbers'
+    });
+  }
+
+  if (answers.length === 0) {
+    return res.status(400).json({
+      error: 'No answers provided'
+    });
+  }
+
+  const score = answers.reduce((total, value) => {
+    if (typeof value !== 'number') {
+      return total;
+    }
+    return total + value;
+  }, 0);
 
   let level = '';
   let recommendations = [];
@@ -39,7 +57,11 @@ app.post('/assessment', (req, res) => {
     ];
   }
 
-  res.json({ score, level, recommendations });
+  return res.json({
+    score,
+    level,
+    recommendations
+  });
 });
 
 app.listen(5000, () => {

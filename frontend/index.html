@@ -124,22 +124,36 @@
   <div id="result"></div>
 
   <script>
-    const form = document.getElementById('assessmentForm');
-    const resultDiv = document.getElementById('result');
+  const form = document.getElementById('assessmentForm');
+  const resultDiv = document.getElementById('result');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      const values = Array.from(document.querySelectorAll('select'))
-        .map(select => Number(select.value));
+    const values = Array.from(document.querySelectorAll('select'))
+      .map(select => select.value);
 
+    // Frontend validation
+    if (values.includes("")) {
+      resultDiv.innerHTML = "<p style='color:red;'>Please answer all questions.</p>";
+      return;
+    }
+
+    const answers = values.map(Number);
+
+    try {
       const response = await fetch('http://localhost:5000/assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: values })
+        body: JSON.stringify({ answers })
       });
 
       const data = await response.json();
+
+      if (!response.ok) {
+        resultDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
+        return;
+      }
 
       resultDiv.innerHTML = `
         <h3>Result</h3>
@@ -150,8 +164,12 @@
           ${data.recommendations.map(r => `<li>${r}</li>`).join('')}
         </ul>
       `;
-    });
-  </script>
+    } catch (error) {
+      resultDiv.innerHTML =
+        "<p style='color:red;'>Server unavailable. Please try again later.</p>";
+    }
+  });
+</script>
 
 </body>
 </html>
